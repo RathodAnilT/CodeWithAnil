@@ -63,7 +63,7 @@ npm install
 ```
 PORT=5000
 NODE_ENV=development
-MONGODB_URI=mongodb://localhost:27017/codeWithAnil
+MONGODB_URI= your uri will be here-- use your own setup
 JWT_SECRET=your_jwt_secret_key_change_this
 JWT_EXPIRE=30d
 COOKIE_EXPIRE=30
