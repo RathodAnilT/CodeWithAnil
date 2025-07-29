@@ -5,7 +5,7 @@ import { auth } from '../firebase/config';
 
 // Create axios instance with base URL and configuration
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || 'http://localhost:5000',
+  baseURL: import.meta.env.VITE_API_URL || 'https://codewithanil-backend.onrender.com',
   headers: {
     'Content-Type': 'application/json'
   },
