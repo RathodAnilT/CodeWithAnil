@@ -1,0 +1,473 @@
+﻿import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
+import { motion } from 'framer-motion';
+import useAuth from '../hooks/useAuth';
+import API from '../utils/axiosConfig';
+import { toast } from 'react-hot-toast';
+import { TESTIMONIAL_PATHS } from '../utils/apiPaths';
+
+const Home = () => {
+  const { currentUser } = useAuth();
+  const [testimonials, setTestimonials] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [showTestimonialForm, setShowTestimonialForm] = useState(false);
+  const [newTestimonial, setNewTestimonial] = useState({
+    quote: '',
+    author: '',
+    role: ''
+  });
+  
+  // Default testimonials to use when API fails
+  const defaultTestimonials = [
+    {
+      quote: "CodeWithAnil helped me prepare for my technical interviews and land my dream job at Wipro.",
+      author: "Anuja Pachwadkar",
+      role: "Software Engineer"
+    },
+    {
+      quote: "The CS Fundamentals section helped me fill gaps in my knowledge and understand complex concepts and land my dream job at VOIS.",
+      author: "Pratidnya Anekar",
+      role: "CS Student"
+    },
+    {
+      quote: "The SDE Sheet is a game-changer for interview preparation. landed my dream job at Campgemini. Highly recommended!",
+      author: "Varad Nimbarte",
+      role: "CS Student"
+    }
+  ];
+  
+  // Fetch testimonials from API or use default ones
+  useEffect(() => {
+    const fetchTestimonials = async () => {
+      try {
+        setLoading(true);
+        const testimonials = await API.get(TESTIMONIAL_PATHS.ALL);
+        setTestimonials(testimonials);
+      } catch (error) {
+        console.error('Failed to fetch testimonials:', error);
+        setTestimonials(defaultTestimonials);
+      } finally {
+        setLoading(false);
+      }
+    };
+    
+    fetchTestimonials();
+  }, []);
+  
+  const handleSubmitTestimonial = async (e) => {
+    e.preventDefault();
+    
+    if (!newTestimonial.quote || !newTestimonial.author || !newTestimonial.role) {
+      toast.error("Please fill in all fields");
+      return;
+    }
+    
+    try {
+      // Even if API call fails, show success to user and update UI
+      setTestimonials([...testimonials, newTestimonial]);
+      setNewTestimonial({ quote: '', author: '', role: '' });
+      setShowTestimonialForm(false);
+      
+      // Attempt to save to backend
+      await API.post(TESTIMONIAL_PATHS.ALL, newTestimonial);
+      toast.success("Thank you for your testimonial!");
+    } catch (err) {
+      console.error("Error submitting testimonial:", err);
+      // Don't show error to user since we already updated the UI
+      // Just log it for debugging
+    }
+  };
+
+  const fadeIn = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { 
+      opacity: 1, 
+      y: 0, 
+      transition: { duration: 0.6 }
+    }
+  };
+
+  const staggerContainer = {
+    hidden: { opacity: 0 },
+    visible: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.2
+      }
+    }
+  };
+
+  const features = [
+    {
+      title: "SDE Sheet",
+      description: "Track your progress through curated problems designed specifically for software development engineer interviews.",
+      icon: "M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10",
+      link: "/sde-sheet",
+      color: "from-blue-400 to-indigo-600"
+    },
+    {
+      title: "CS Fundamentals",
+      description: "Master essential computer science concepts with our comprehensive resources and learning paths.",
+      icon: "M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253",
+      link: "/cs-fundamentals",
+      color: "from-purple-400 to-indigo-600"
+    },
+    {
+      title: "Technical Blogs",
+      description: "Stay updated with the latest programming trends and learn from experienced developers.",
+      icon: "M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z",
+      link: "/blogs",
+      color: "from-emerald-400 to-teal-600"
+    }
+  ];
+
+  const stats = [
+    { label: "DSA Topics", value: "20+" },
+    { label: "CS Fundamental Resources", value: "150+" },
+    { label: "Interview Problems", value: "450+" },
+    { label: "Technical Articles", value: "100+" }
+  ];
+
+  return (
+    <div className="overflow-hidden bg-gray-900 text-white">
+      {/* Hero Section - Dark Coding Theme */}
+      <section className="relative bg-gradient-to-b from-gray-900 to-gray-800 overflow-hidden">
+        <div className="absolute inset-0">
+          <div className="absolute inset-0 bg-coding-pattern opacity-10"></div>
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/30 to-purple-900/30"></div>
+        </div>
+        
+        <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-24 md:py-32">
+          <motion.div
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8 }}
+            className="max-w-xl"
+          >
+            <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight mb-4">
+              <span className="block text-white">Master</span>
+              <span className="block text-blue-400">Computer Science</span>
+              <span className="block text-white">& DSA Concepts</span>
+            </h1>
+            <p className="text-xl text-gray-300 mt-6 mb-8">
+              Comprehensive resources to help you excel in technical interviews,
+              build a strong foundation in CS fundamentals, and grow your career in tech.
+            </p>
+            <div className="flex flex-wrap gap-4">
+              {currentUser ? (
+                <Link to="/sde-sheet" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium shadow-lg shadow-blue-500/30 flex items-center transition-all duration-300">
+                  Explore SDE Sheet
+                  <svg className="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+              ) : (
+                <Link to="/register" className="px-6 py-3 rounded-lg bg-gradient-to-r from-blue-500 to-indigo-600 hover:from-blue-600 hover:to-indigo-700 text-white font-medium shadow-lg shadow-blue-500/30 flex items-center transition-all duration-300">
+                  Get Started
+                  <svg className="w-5 h-5 ml-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7l5 5m0 0l-5 5m5-5H6" />
+                  </svg>
+                </Link>
+              )}
+              <Link to="/blogs" className="px-6 py-3 rounded-lg bg-gray-800 hover:bg-gray-700 border border-gray-700 text-white font-medium shadow-lg transition-all duration-300 flex items-center">
+                Read Blog Articles
+              </Link>
+            </div>
+
+            {/* Code snippet decoration */}
+            <div className="mt-10 p-4 bg-gray-800 rounded-lg border border-gray-700 shadow-lg font-mono text-sm text-gray-300 hidden md:block">
+              <div className="flex items-center mb-2">
+                <span className="h-3 w-3 rounded-full bg-red-500 mr-2"></span>
+                <span className="h-3 w-3 rounded-full bg-yellow-500 mr-2"></span>
+                <span className="h-3 w-3 rounded-full bg-green-500"></span>
+                <span className="ml-4 text-gray-400">dsa_interview_prep.js</span>
+              </div>
+              <div>
+                <span className="text-purple-400">function</span> <span className="text-blue-400">solveDSAProblems</span>(<span className="text-yellow-300">determination</span>) {'{'} <br />
+                &nbsp;&nbsp;<span className="text-green-400">// Track your progress</span><br />
+                &nbsp;&nbsp;<span className="text-purple-400">const</span> <span className="text-blue-300">progress</span> = <span className="text-blue-400">trackProgress</span>()<span className="text-gray-500">;</span><br />
+                &nbsp;&nbsp;<span className="text-green-400">// Learn core concepts</span><br />
+                &nbsp;&nbsp;<span className="text-purple-400">const</span> <span className="text-blue-300">concepts</span> = <span className="text-blue-400">masterFundamentals</span>()<span className="text-gray-500">;</span><br />
+                &nbsp;&nbsp;<span className="text-purple-400">return</span> <span className="text-blue-300">concepts</span> + <span className="text-blue-300">progress</span> + <span className="text-blue-300">determination</span><span className="text-gray-500">;</span><br />
+                {'}'}
+              </div>
+            </div>
+          </motion.div>
+            
+          <motion.div 
+            className="mt-12 md:mt-0 md:absolute md:right-8 md:top-1/2 md:transform md:-translate-y-1/2"
+            initial={{ opacity: 0, scale: 0.8 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
+          >
+            <img 
+              src="/images/hero-illustration.svg" 
+              alt="Illustration" 
+              className="max-w-full h-auto md:max-w-md lg:max-w-lg"
+              onError={(e) => {
+                e.target.style.display = 'none';
+              }}
+            />
+          </motion.div>
+        </div>
+        
+        {/* Wave Divider */}
+        <div className="absolute bottom-0 left-0 right-0">
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1440 320" className="w-full h-auto">
+            <path fill="#111827" fillOpacity="1" d="M0,96L60,106.7C120,117,240,139,360,128C480,117,600,75,720,80C840,85,960,139,1080,144C1200,149,1320,107,1380,85.3L1440,64L1440,320L1380,320C1320,320,1200,320,1080,320C960,320,840,320,720,320C600,320,480,320,360,320C240,320,120,320,60,320L0,320Z"></path>
+          </svg>
+        </div>
+      </section>
+
+      {/* Features Section - Dark Theme */}
+      <section className="py-20 bg-gray-900">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            variants={fadeIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <h2 className="text-base text-blue-400 font-semibold tracking-wide uppercase">Features</h2>
+            <p className="mt-2 text-3xl font-extrabold text-white sm:text-4xl">
+              Everything you need to excel
+            </p>
+            <p className="mt-4 max-w-2xl text-xl text-gray-300 mx-auto">
+              Comprehensive tools and resources to help you master technical concepts
+            </p>
+          </motion.div>
+          
+          <motion.div 
+            className="grid gap-8 md:grid-cols-3"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {features.map((feature, index) => (
+              <motion.div
+                key={feature.title}
+                variants={fadeIn}
+                className="relative group"
+              >
+                <Link 
+                  to={feature.link}
+                  className="block p-6 bg-gray-800 border border-gray-700 rounded-xl shadow-xl overflow-hidden transition-all duration-300 hover:shadow-2xl hover:shadow-blue-500/10 hover:-translate-y-1"
+                >
+                  <div className="absolute bottom-0 right-0 w-32 h-32 bg-gradient-to-tl opacity-20 rounded-tl-full"></div>
+                  <div className={`flex items-center justify-center w-12 h-12 bg-gradient-to-r ${feature.color} rounded-lg text-white mb-4 shadow-lg`}>
+                    <svg className="w-6 h-6" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d={feature.icon} />
+                    </svg>
+                  </div>
+                  <h3 className="text-xl font-bold text-white mb-2">{feature.title}</h3>
+                  <p className="text-gray-300">{feature.description}</p>
+                  <div className="mt-4 flex items-center text-blue-400 group-hover:text-blue-300">
+                    <span>Learn more</span>
+                    <svg className="w-4 h-4 ml-1 transform group-hover:translate-x-1 transition-transform" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                    </svg>
+                  </div>
+                </Link>
+              </motion.div>
+            ))}
+          </motion.div>
+        </div>
+      </section>
+      
+      {/* Stats Section */}
+      <section className="py-16 bg-gray-800">
+        <motion.div 
+          className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8"
+          variants={fadeIn}
+          initial="hidden"
+          whileInView="visible"
+          viewport={{ once: true }}
+        >
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+            {stats.map((stat) => (
+              <div key={stat.label} className="text-center">
+                <p className="text-4xl font-extrabold text-blue-400 mb-2">{stat.value}</p>
+                <p className="text-lg text-gray-300">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </motion.div>
+      </section>
+      
+      {/* Testimonials - Light Theme with Dynamic Content */}
+      <section className="py-20 bg-gradient-to-br from-blue-50 to-indigo-100 text-gray-800">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="text-center mb-16"
+            variants={fadeIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <h2 className="text-base text-primary-600 font-semibold tracking-wide uppercase">Testimonials</h2>
+            <p className="mt-2 text-3xl font-extrabold text-gray-900 sm:text-4xl">
+              What our users say
+            </p>
+            <button 
+              onClick={() => setShowTestimonialForm(!showTestimonialForm)}
+              className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md shadow-sm text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+            >
+              {showTestimonialForm ? 'Cancel' : 'Share Your Experience'}
+            </button>
+          </motion.div>
+
+          {/* Testimonial submission form */}
+          {showTestimonialForm && (
+            <motion.div
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="max-w-lg mx-auto mb-16 bg-white p-6 rounded-lg shadow-lg"
+            >
+              <h3 className="text-xl font-bold text-gray-900 mb-4">Share Your Testimonial</h3>
+              <form onSubmit={handleSubmitTestimonial}>
+                <div className="mb-4">
+                  <label htmlFor="quote" className="block text-sm font-medium text-gray-700 mb-1">
+                    Your Experience
+                  </label>
+                  <textarea
+                    id="quote"
+                    value={newTestimonial.quote}
+                    onChange={(e) => setNewTestimonial({...newTestimonial, quote: e.target.value})}
+                    rows={4}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                    placeholder="Share how CodeWithAnil helped you..."
+                    required
+                  />
+                </div>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-4">
+                  <div>
+                    <label htmlFor="author" className="block text-sm font-medium text-gray-700 mb-1">
+                      Your Name
+                    </label>
+                    <input
+                      type="text"
+                      id="author"
+                      value={newTestimonial.author}
+                      onChange={(e) => setNewTestimonial({...newTestimonial, author: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="John Doe"
+                      required
+                    />
+                  </div>
+                  <div>
+                    <label htmlFor="role" className="block text-sm font-medium text-gray-700 mb-1">
+                      Your Role
+                    </label>
+                    <input
+                      type="text"
+                      id="role"
+                      value={newTestimonial.role}
+                      onChange={(e) => setNewTestimonial({...newTestimonial, role: e.target.value})}
+                      className="w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-primary-500 focus:border-primary-500"
+                      placeholder="Software Engineer"
+                      required
+                    />
+                  </div>
+                </div>
+                <div className="flex justify-end">
+                  <button
+                    type="submit"
+                    className="inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-primary-600 hover:bg-primary-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-500"
+                  >
+                    Submit Testimonial
+                  </button>
+                </div>
+              </form>
+            </motion.div>
+          )}
+
+          <motion.div 
+            className="grid gap-8 md:grid-cols-3"
+            variants={staggerContainer}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            {loading ? (
+              <div className="col-span-3 flex justify-center py-20">
+                <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-primary-600"></div>
+              </div>
+            ) : Array.isArray(testimonials) && testimonials.length > 0 ? (
+              testimonials.map((testimonial, index) => (
+                <motion.div
+                  key={index}
+                  variants={fadeIn}
+                  className="bg-white shadow-lg p-6 rounded-lg border border-gray-200 hover:shadow-xl transition-shadow duration-300"
+                >
+                  <svg className="h-10 w-10 text-primary-600 mb-4" fill="currentColor" viewBox="0 0 24 24">
+                    <path d="M9.983 3v7.391c0 5.704-3.731 9.57-8.983 10.609l-.995-2.151c2.432-.917 3.995-3.638 3.995-5.849h-4v-10h9.983zm14.017 0v7.391c0 5.704-3.748 9.571-9 10.609l-.996-2.151c2.433-.917 3.996-3.638 3.996-5.849h-3.983v-10h9.983z" />
+                  </svg>
+                  <p className="text-gray-700 mb-4">"{testimonial.quote}"</p>
+                  <div className="flex items-center">
+                    <div className="ml-3">
+                      <p className="text-gray-900 font-medium">{testimonial.author}</p>
+                      <p className="text-primary-600 text-sm">{testimonial.role}</p>
+                    </div>
+                  </div>
+                </motion.div>
+              ))
+            ) : (
+              <div className="col-span-3 text-center py-10">
+                <p className="text-gray-500">No testimonials available. Be the first to share your experience!</p>
+              </div>
+            )}
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CTA Section - Light Theme */}
+      <section className="py-20 bg-white">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <motion.div 
+            className="bg-gradient-to-r from-primary-600 to-indigo-700 rounded-2xl shadow-xl overflow-hidden"
+            variants={fadeIn}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+          >
+            <div className="px-6 py-12 md:py-16 md:px-12 lg:flex lg:items-center lg:justify-between">
+              <div>
+                <h2 className="text-3xl font-extrabold tracking-tight text-white sm:text-4xl">
+                  <span className="block">Ready to dive in?</span>
+                  <span className="block text-indigo-200">Start your coding journey today.</span>
+                </h2>
+                <p className="mt-4 text-lg text-indigo-100">
+                  Access all our resources, track your progress, and boost your career.
+                </p>
+              </div>
+              <div className="mt-8 flex lg:mt-0 lg:flex-shrink-0">
+                <div className="inline-flex rounded-md shadow">
+                  <Link to={currentUser ? "/" : "/register"} className="bg-white text-primary-700 hover:bg-gray-100 px-6 py-3 rounded-md font-medium shadow-lg transition-colors duration-300">
+                    {currentUser ? "Explore Features" : "Get Started"}
+                  </Link>
+                </div>
+                <div className="ml-3 inline-flex rounded-md shadow">
+                  <Link to="/sde-sheet" className="bg-primary-800 text-white hover:bg-primary-900 px-6 py-3 rounded-md font-medium transition-colors duration-300">
+                    Learn more
+                  </Link>
+                </div>
+              </div>
+            </div>
+          </motion.div>
+        </div>
+      </section>
+
+      {/* CSS for coding pattern */}
+      <style jsx="false" global="false">{`
+        .bg-coding-pattern {
+          background-image: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.05'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+        }
+      `}</style>
+    </div>
+  );
+};
+
+export default Home; 
+

@@ -1,0 +1,26 @@
+# === DEPENDENCIES ===
+node_modules/
+client/node_modules/
+server/node_modules/
+.pnp
+.pnp.js
+
+# === ENVIRONMENT VARIABLES ===
+.env
+.env.*         # covers .env.local, .env.development.local, etc.
+client/.env
+server/.env
+
+# === LOG FILES ===
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# === BUILD OUTPUT ===
+dist/
+build/
+
+# === IDE/OS FILES ===
+.DS_Store
+.vscode/
+.idea/
